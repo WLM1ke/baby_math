@@ -7,6 +7,8 @@ from src.cases_generators import cases_all
 
 DATA_PATH = Path(__file__).parent / 'data' / 'results.json'
 INDENT = 0
+NEW = 'new_case'
+OLD = 'old_case'
 
 
 class Case:
@@ -35,15 +37,22 @@ def load_data():
             raw_cases = json.load(file)
     else:
         DATA_PATH.parent.mkdir(parents=True)
-        raw_cases = [[case, None] for case in cases_all()]
+        new_cases = [[case, None] for case in cases_all()]
+        raw_cases = {NEW: new_cases,
+                     OLD: []}
         with open(DATA_PATH, mode='w') as file:
             json.dump(raw_cases, file, indent=INDENT)
-    return [Case(case, last_time) for case, last_time in raw_cases]
+    new_cases = [Case(case, last_time) for case, last_time in raw_cases[NEW]]
+    old_cases = [Case(case, last_time) for case, last_time in raw_cases[OLD]]
+    return new_cases, old_cases
 
 
-def save_data(cases):
+def save_data(new_cases, old_cases):
+    new_cases = [[case.case, case.last_time] for case in new_cases]
+    old_cases = [[case.case, case.last_time] for case in old_cases]
+    raw_cases = {NEW: new_cases,
+                 OLD: old_cases}
     with open(DATA_PATH, mode='w') as file:
-        raw_cases = [[case.case, case.last_time] for case in cases]
         json.dump(raw_cases, file, indent=INDENT)
 
 
