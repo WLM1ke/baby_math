@@ -1,6 +1,7 @@
 """Загрузка сохранение данных"""
 
 import json
+import time
 from pathlib import Path
 
 from src.cases_generators import cases_all
@@ -9,6 +10,8 @@ DATA_PATH = Path(__file__).parent / 'data' / 'results.json'
 INDENT = 0
 NEW = 'new_case'
 OLD = 'old_case'
+RIGHT_MULTIPLIER = 1.5
+MIN_DELTA = 10.0
 
 
 class Case:
@@ -19,6 +22,9 @@ class Case:
     def __repr__(self):
         return f'\nCase(case={self._case}, last_time={self._last_time})'
 
+    def __lt__(self, other):
+        return self.last_time < other.last_time
+
     @property
     def case(self):
         return self._case
@@ -27,8 +33,21 @@ class Case:
     def last_time(self):
         return self._last_time
 
-    def check(self, result):
-        return eval(self._case) == eval(result)
+    def setup_time(self):
+        self._last_time = time.time()
+
+    def right(self):
+        if time.time() > self._last_time:
+            self._last_time = (time.time() - self._last_time) * RIGHT_MULTIPLIER + time.time()
+        else:
+            raise ValueError
+
+    def wrong(self):
+        self._last_time = time.time() - MIN_DELTA
+
+    @property
+    def result(self):
+        return eval(self._case)
 
 
 def load_data():
