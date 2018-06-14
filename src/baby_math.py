@@ -3,6 +3,7 @@
 import heapq
 import time
 
+from src.cases_generators import cases_all
 from src.data_managment import load_data, save_data
 
 
@@ -11,17 +12,19 @@ class BabyMath:
     def __init__(self):
         self._counter = 0
         self._new_cases, self._old_cases = load_data()
-        if not self._old_cases:
-            self._add_case()
+        print('Начало игры')
+        print(f'Новые примеры - {len(self._new_cases)}')
+        print(f'Старые примеры - {len(self._old_cases)}')
+        if len(self._old_cases) + len(self._new_cases) != len(list(cases_all())):
+            raise ValueError('Не верное количество примеров.')
 
     def _add_case(self):
         new_case = self._new_cases.pop()
-        new_case.setup_time()
         heapq.heappush(self._old_cases, new_case)
 
     def test(self):
         print(f'\nСчет {self._counter} - ', end='')
-        if self._old_cases[0].last_time > time.time():
+        if (not self._old_cases) or (self._old_cases[0].next_time > time.time()):
             self._add_case()
             print('новый пример.')
         else:

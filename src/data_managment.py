@@ -11,39 +11,48 @@ INDENT = 0
 NEW = 'new_case'
 OLD = 'old_case'
 RIGHT_MULTIPLIER = 1.5
+MIN_REPEAT = 3
 MIN_DELTA = 10.0
+DAY_IN_SECONDS = 60 * 60 * 24
 
 
 class Case:
-    def __init__(self, case, last_time):
+    def __init__(self, case, next_time=0, right_count=0):
         self._case = case
-        self._last_time = last_time
+        self._next_time = next_time
+        self._right_count = right_count
 
     def __repr__(self):
-        return f'\nCase(case={self._case}, last_time={self._last_time})'
+        return f'\nCase(case={self._case}, next_time={self._next_time}, right_count={self._right_count})'
 
     def __lt__(self, other):
-        return self.last_time < other.last_time
+        return self.next_time < other.next_time
 
     @property
     def case(self):
         return self._case
 
     @property
-    def last_time(self):
-        return self._last_time
+    def next_time(self):
+        return self._next_time
 
-    def setup_time(self):
-        self._last_time = time.time()
+    @property
+    def right_count(self):
+        return self._right_count
 
     def right(self):
-        if time.time() > self._last_time:
-            self._last_time = (time.time() - self._last_time) * RIGHT_MULTIPLIER + time.time()
+        self._right_count += 1
+        now = time.time()
+        if now > self._next_time:
+            if self._right_count < MIN_REPEAT:
+                self._next_time = now + MIN_DELTA
+            else:
+                self._next_time = now + DAY_IN_SECONDS * RIGHT_MULTIPLIER ** (self._right_count - MIN_REPEAT)
         else:
             raise ValueError
 
     def wrong(self):
-        self._last_time = time.time() - MIN_DELTA
+        self._right_count = 0
 
     @property
     def result(self):
@@ -56,19 +65,19 @@ def load_data():
             raw_cases = json.load(file)
     else:
         DATA_PATH.parent.mkdir(parents=True)
-        new_cases = [[case, None] for case in cases_all()]
+        new_cases = [case for case in cases_all()]
         raw_cases = {NEW: new_cases,
                      OLD: []}
         with open(DATA_PATH, mode='w') as file:
             json.dump(raw_cases, file, indent=INDENT)
-    new_cases = [Case(case, last_time) for case, last_time in raw_cases[NEW]]
-    old_cases = [Case(case, last_time) for case, last_time in raw_cases[OLD]]
+    new_cases = [Case(case) for case in raw_cases[NEW]]
+    old_cases = [Case(case, last_time, right_count) for case, last_time, right_count in raw_cases[OLD]]
     return new_cases, old_cases
 
 
 def save_data(new_cases, old_cases):
-    new_cases = [[case.case, case.last_time] for case in new_cases]
-    old_cases = [[case.case, case.last_time] for case in old_cases]
+    new_cases = [case.case for case in new_cases]
+    old_cases = [[case.case, case.next_time, case.right_count] for case in old_cases]
     raw_cases = {NEW: new_cases,
                  OLD: old_cases}
     with open(DATA_PATH, mode='w') as file:
