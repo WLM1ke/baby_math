@@ -6,6 +6,8 @@ import time
 from src.cases_generators import cases_all
 from src.data_managment import load_data, save_data
 
+END_SCORE = 30
+
 
 class BabyMath:
 
@@ -17,6 +19,10 @@ class BabyMath:
         print(f'Старые примеры - {len(self._old_cases)}')
         if len(self._old_cases) + len(self._new_cases) != len(list(cases_all())):
             raise ValueError('Не верное количество примеров.')
+
+    @property
+    def counter(self):
+        return self._counter
 
     def _add_case(self):
         new_case = self._new_cases.pop()
@@ -32,21 +38,21 @@ class BabyMath:
         test_case = heapq.heappop(self._old_cases)
         while True:
             result = float(input(f'{test_case.case} = '))
-            if test_case.result == result:
+            if test_case.test_result(result):
                 print('ПРАВИЛЬНО!!!')
                 self._counter += 1
-                test_case.right()
                 heapq.heappush(self._old_cases, test_case)
                 save_data(self._new_cases, self._old_cases)
                 break
             else:
                 print('НЕПРАВИЛЬНО - попробуй еще!!!')
                 self._counter -= 1
-                print(f'Счет {self._counter}.')
-                test_case.wrong()
+                print(f'\nСчет {self._counter}.')
 
 
 if __name__ == '__main__':
     math = BabyMath()
-    while True:
+    print(f'\nИГРА ДО {END_SCORE} ОЧКОВ.')
+    while math.counter < END_SCORE:
         math.test()
+    print('\n*** ТЫ ВЫЙГРАЛ!!! ***')

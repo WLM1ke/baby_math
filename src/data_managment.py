@@ -40,7 +40,7 @@ class Case:
     def right_count(self):
         return self._right_count
 
-    def right(self):
+    def _right(self):
         self._right_count += 1
         now = time.time()
         if now > self._next_time:
@@ -51,12 +51,16 @@ class Case:
         else:
             raise ValueError
 
-    def wrong(self):
+    def _wrong(self):
         self._right_count = 0
 
-    @property
-    def result(self):
-        return eval(self._case)
+    def test_result(self, result):
+        if eval(self._case) == float(result):
+            self._right()
+            return True
+        else:
+            self._wrong()
+            return False
 
 
 def load_data():
