@@ -3,8 +3,8 @@
 import heapq
 import time
 
-from src.cases_generators import cases_all
-from src.data_managment import load_data, save_data
+from cases_generators import cases_all
+from data_managment import load_data, save_data
 
 END_SCORE = 30
 

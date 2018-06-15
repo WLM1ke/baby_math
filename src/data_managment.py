@@ -4,7 +4,7 @@ import json
 import time
 from pathlib import Path
 
-from src.cases_generators import cases_all
+from cases_generators import cases_all
 
 DATA_PATH = Path(__file__).parent / 'data' / 'results.json'
 INDENT = 0
