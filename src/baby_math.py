@@ -38,7 +38,7 @@ class BabyMath:
         test_case = heapq.heappop(self._old_cases)
         while True:
             result = float(input(f'{test_case.case} = '))
-            if test_case.test_result(result):
+            if test_case.check_result(result):
                 print('ПРАВИЛЬНО!!!')
                 self._counter += 1
                 heapq.heappush(self._old_cases, test_case)

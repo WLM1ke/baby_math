@@ -54,7 +54,7 @@ class Case:
     def _wrong(self):
         self._right_count = 0
 
-    def test_result(self, result):
+    def check_result(self, result):
         if eval(self._case) == float(result):
             self._right()
             return True
