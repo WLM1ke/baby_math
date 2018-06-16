@@ -51,8 +51,11 @@ class BabyMath:
 
 
 if __name__ == '__main__':
+    new_cases, _ = load_data()
     math = BabyMath()
     print(f'\nИГРА ДО {END_SCORE} ОЧКОВ.')
     while math.counter < END_SCORE:
         math.test()
     print('\n*** ТЫ ВЫЙГРАЛ!!! ***')
+    new_cases_end, _ = load_data()
+    print(f'\nИзучено {len(new_cases) - len(new_cases_end)} новых примеров.')
