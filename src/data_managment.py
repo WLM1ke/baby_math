@@ -10,9 +10,7 @@ DATA_PATH = Path(__file__).parent / 'data' / 'results.json'
 INDENT = 0
 NEW = 'new_case'
 OLD = 'old_case'
-RIGHT_MULTIPLIER = 1.5
-MIN_REPEAT = 3
-MIN_DELTA = 10.0
+RIGHT_MULTIPLIER = 2
 DAY_IN_SECONDS = 60 * 60 * 24
 
 
@@ -40,23 +38,21 @@ class Case:
     def right_count(self):
         return self._right_count
 
-    def _right(self):
-        self._right_count += 1
+    def _right(self, score):
+        self._right_count += score
         now = time.time()
-        if now > self._next_time:
-            if self._right_count < MIN_REPEAT:
-                self._next_time = now + MIN_DELTA
-            else:
-                self._next_time = now + DAY_IN_SECONDS * RIGHT_MULTIPLIER ** (self._right_count - MIN_REPEAT)
-        else:
-            raise ValueError
+        self._next_time = now + DAY_IN_SECONDS * RIGHT_MULTIPLIER ** (self._right_count - 1)
 
     def _wrong(self):
-        self._right_count = 0
+        self._right_count = min(0, self._right_count - 1)
 
-    def check_result(self, result):
-        if eval(self._case) == float(result):
-            self._right()
+    def check_result(self, result, score):
+        try:
+            result = float(result)
+        except ValueError:
+            return False
+        if eval(self._case) == result:
+            self._right(score)
             return True
         else:
             self._wrong()
