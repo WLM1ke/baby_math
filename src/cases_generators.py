@@ -25,8 +25,7 @@ def cases_all():
                       cases_mul(),
                       cases_div()]
     for cases in all_generators:
-        for case in cases:
-            yield case
+        yield from cases
 
 
 if __name__ == '__main__':
